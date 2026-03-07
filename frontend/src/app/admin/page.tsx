@@ -12,6 +12,7 @@ export default function Home() {
     const [liveAlerts, setLiveAlerts] = useState<PredictionData[]>([]);
     const [liveRequests, setLiveRequests] = useState<any[]>([]);
     const [warnedRegions, setWarnedRegions] = useState<Set<string>>(new Set());
+    const [expandedXAI, setExpandedXAI] = useState<string | null>(null);
 
     const handleBroadcastWarning = async (alert: PredictionData) => {
         try {
@@ -205,6 +206,36 @@ export default function Home() {
                                                 <div className="text-xs text-slate-400 bg-slate-950/50 p-3 rounded-md border border-slate-800 mt-3 shadow-inner leading-relaxed">
                                                     <strong className="text-emerald-400/90 tracking-wide uppercase text-[10px]">AI Logic Path</strong> <br />
                                                     <span className="mt-1 block">{alert.reason}</span>
+                                                </div>
+                                                {/* XAI Bar Chart */}
+                                                <div className="mt-3">
+                                                    <button
+                                                        className="text-xs font-semibold text-emerald-400/80 hover:text-emerald-400 flex items-center gap-1.5"
+                                                        onClick={() => setExpandedXAI(expandedXAI === alert.id ? null : alert.id)}
+                                                    >
+                                                        <span>★</span> {expandedXAI === alert.id ? 'Hide Breakdown' : 'Why This Prediction?'}
+                                                    </button>
+                                                    {expandedXAI === alert.id && (
+                                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2">
+                                                            {Object.entries((alert as any).localScores || {}).sort(([, a]: any, [, b]: any) => b - a).map(([feat, score]: [string, any]) => (
+                                                                <div key={feat}>
+                                                                    <div className="flex justify-between text-[11px] mb-1">
+                                                                        <span className="text-slate-400">{feat}</span>
+                                                                        <span className="text-slate-300 font-bold">{score}%</span>
+                                                                    </div>
+                                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                        <motion.div
+                                                                            initial={{ width: 0 }}
+                                                                            animate={{ width: `${score}%` }}
+                                                                            transition={{ duration: 0.6, ease: 'easeOut' }}
+                                                                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            <p className="text-[10px] text-slate-600 mt-1 italic">Sources: UCI Blood Transfusion DB + Jaipur contextual signals</p>
+                                                        </motion.div>
+                                                    )}
                                                 </div>
                                                 <Button
                                                     size="sm"

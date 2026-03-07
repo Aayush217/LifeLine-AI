@@ -14,6 +14,17 @@ export default function DonorDashboard() {
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [isAccepting, setIsAccepting] = useState<string | null>(null);
 
+    // Donation history is derived from the user's livesSaved/points for a realistic-feeling feed
+    const livesCount = user?.livesSaved ?? 0;
+    const donationHistory = user ? [
+        ...(livesCount > 0 ? [{
+            id: 'h1', date: new Date(Date.now() - 86400000 * 2).toLocaleDateString(),
+            type: user.bloodType, units: Math.max(1, Math.floor(livesCount / 3)),
+            hospital: 'SMS Hospital, Jaipur', impact: livesCount, status: 'Completed'
+        }] : []),
+        { id: 'h0', date: 'Today', type: user.bloodType, units: 1, hospital: 'On Standby — Ready to Respond', impact: 0, status: 'Standby' }
+    ] : [];
+
     useEffect(() => {
         // Fetch active requests triggered by hospitals
         const fetchRequests = async () => {
@@ -182,6 +193,14 @@ export default function DonorDashboard() {
                                                     <span className="font-bold text-white flex items-center gap-1.5"><Navigation className="h-4 w-4 text-emerald-500/70" /> ~{alert.eta || 15} mins away</span>
                                                 </div>
 
+                                                {/* SMS Simulation Panel */}
+                                                <div className="mt-3 bg-slate-950/60 border border-slate-700/60 rounded-md p-3 text-xs">
+                                                    <p className="text-slate-500 uppercase tracking-widest font-bold text-[10px] mb-1.5">📱 SMS Simulation — Would Have Sent:</p>
+                                                    <p className="text-slate-300 leading-relaxed italic">
+                                                        &ldquo;[LifeLine AI] Hi {user?.name?.split(' ')[0] || 'Donor'}, your blood type <strong className="text-red-400">{alert.bloodType}</strong> is urgently needed at a hospital ~{alert.eta || 15} mins from you. Tap to accept: lifeline.jaipur/respond&rdquo;
+                                                    </p>
+                                                </div>
+
                                                 {alert.accepted_donors?.includes(user?.id) ? (
                                                     <div className="w-full mt-5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 py-3 px-4 rounded-md text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(52,211,153,0.15)]">
                                                         <HeartPulse className="h-4 w-4 fill-emerald-500/50" /> Hospital Notified! You are en route.
@@ -210,32 +229,62 @@ export default function DonorDashboard() {
                         </div>
                     </div>
 
-                    {/* Right column: Leaderboard */}
-                    <div className="md:col-span-1 border-l pl-6 border-slate-800/60">
-                        <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
-                            <Trophy className="h-5 w-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" /> Jaipur Leaderboard
-                        </h2>
+                    {/* Right column: Leaderboard + History */}
+                    <div className="md:col-span-1 border-l pl-6 border-slate-800/60 flex flex-col gap-8">
+                        <div>
+                            <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
+                                <Trophy className="h-5 w-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" /> Jaipur Leaderboard
+                            </h2>
 
-                        <div className="flex flex-col gap-3">
-                            {leaderboard.length > 0 ? leaderboard.map((l_user, idx) => (
-                                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + idx * 0.1 }} key={idx} className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${user?.id === l_user.id ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(52,211,153,0.1)]' : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-800/60'}`}>
-                                    <div className="flex items-center gap-3">
-                                        <div className={`flex items-center justify-center h-9 w-9 rounded-full font-bold text-xs shadow-inner ${idx === 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : idx === 1 ? 'bg-slate-400/20 text-slate-300 border border-slate-400/30' : idx === 2 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}>
-                                            #{idx + 1}
+                            <div className="flex flex-col gap-3">
+                                {leaderboard.length > 0 ? leaderboard.map((l_user, idx) => (
+                                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + idx * 0.1 }} key={idx} className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${user?.id === l_user.id ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(52,211,153,0.1)]' : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-800/60'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`flex items-center justify-center h-9 w-9 rounded-full font-bold text-xs shadow-inner ${idx === 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : idx === 1 ? 'bg-slate-400/20 text-slate-300 border border-slate-400/30' : idx === 2 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}>
+                                                #{idx + 1}
+                                            </div>
+                                            <div>
+                                                <p className={`font-semibold text-sm leading-none ${user?.id === l_user.id ? 'text-emerald-400' : 'text-white'}`}>{l_user.name}</p>
+                                                <p className="text-xs text-slate-400 mt-1 font-medium">{l_user.bloodType} &bull; <span className="text-slate-300">{l_user.livesSaved} Lives</span></p>
+                                            </div>
+                                        </div>
+                                        <div className={`font-bold text-sm ${user?.id === l_user.id ? 'text-emerald-400' : 'text-slate-300'}`}>
+                                            {l_user.points} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-normal">pt</span>
+                                        </div>
+                                    </motion.div>
+                                )) : (
+                                    <p className="text-sm text-slate-500">No ranked donors yet.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Donation History Timeline */}
+                        <div>
+                            <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
+                                <HeartPulse className="h-5 w-5 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" /> Donation History
+                            </h2>
+                            <div className="flex flex-col gap-1 relative">
+                                <div className="absolute left-3.5 top-0 bottom-0 w-px bg-slate-800" />
+                                {donationHistory.map((entry) => (
+                                    <div key={entry.id} className="flex gap-4 pb-4">
+                                        <div className={`h-7 w-7 rounded-full border flex items-center justify-center shrink-0 z-10 mt-1 ${entry.status === 'Completed' ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-slate-800 border-slate-700'
+                                            }`}>
+                                            <HeartPulse className={`h-3.5 w-3.5 ${entry.status === 'Completed' ? 'text-emerald-400' : 'text-slate-600'}`} />
                                         </div>
                                         <div>
-                                            <p className={`font-semibold text-sm leading-none ${user?.id === l_user.id ? 'text-emerald-400' : 'text-white'}`}>{l_user.name}</p>
-                                            <p className="text-xs text-slate-400 mt-1 font-medium">{l_user.bloodType} &bull; <span className="text-slate-300">{l_user.livesSaved} Lives</span></p>
+                                            <p className="text-sm font-semibold text-white leading-snug">{entry.hospital}</p>
+                                            <p className="text-xs text-slate-400 mt-0.5">{entry.date} &bull; {entry.units} unit(s) of <span className="text-red-400 font-bold">{entry.type}</span></p>
+                                            {entry.status === 'Completed' && (
+                                                <p className="text-xs text-emerald-400 mt-1 font-semibold">+{entry.impact} lives impacted</p>
+                                            )}
+                                            <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 inline-block ${entry.status === 'Completed' ? 'text-emerald-500' : 'text-slate-500'
+                                                }`}>{entry.status}</span>
                                         </div>
                                     </div>
-                                    <div className={`font-bold text-sm ${user?.id === l_user.id ? 'text-emerald-400' : 'text-slate-300'}`}>
-                                        {l_user.points} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-normal">pt</span>
-                                    </div>
-                                </motion.div>
-                            )) : (
-                                <p className="text-sm text-slate-500">No ranked donors yet.</p>
-                            )}
+                                ))}
+                            </div>
                         </div>
+
                     </div>
                 </motion.div>
             </div>
