@@ -199,10 +199,10 @@ export default function LoginPage() {
                     {view === 'register' && (
                         <form onSubmit={handleRegisterSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Full Name {roleStr === 'hospital' && "(Hospital Name)"}</label>
+                                <label className="text-sm font-medium text-slate-300">Full Name {roleStr === 'hospital' && "(Hospital Name)"}</label>
                                 <input
                                     type="text" required
-                                    className="w-full p-2.5 border border-slate-200 rounded-md text-sm"
+                                    className="w-full p-2.5 border border-slate-700/50 rounded-md text-sm bg-slate-800/50 text-white focus:outline-none focus:ring-1 focus:ring-red-500/50 focus:border-red-500/50 transition-all placeholder:text-slate-500"
                                     placeholder="John Doe"
                                     value={name} onChange={e => setName(e.target.value)}
                                 />
@@ -249,19 +249,19 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Create Password</label>
+                                <label className="text-sm font-medium text-slate-300">Create Password</label>
                                 <input
                                     type="password" required minLength={6}
-                                    className="w-full p-2.5 border border-slate-200 rounded-md text-sm"
+                                    className="w-full p-2.5 border border-slate-700/50 rounded-md text-sm bg-slate-800/50 text-white focus:outline-none focus:ring-1 focus:ring-red-500/50 focus:border-red-500/50 transition-all placeholder:text-slate-500"
                                     placeholder="At least 6 characters"
                                     value={password} onChange={e => setPassword(e.target.value)}
                                 />
                             </div>
 
-                            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
+                            <Button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-semibold transition-all mt-6 shadow-[0_0_20px_rgba(220,38,38,0.2)] tracking-wide" disabled={loading}>
                                 {loading ? "Creating Account..." : "Create Account"}
                             </Button>
-                            <Button type="button" variant="ghost" className="w-full mt-2" onClick={() => setView('selection')}>
+                            <Button type="button" variant="ghost" className="w-full mt-2 text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors" onClick={() => setView('selection')}>
                                 Cancel
                             </Button>
                         </form>

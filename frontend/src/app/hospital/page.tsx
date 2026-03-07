@@ -262,7 +262,7 @@ export default function HospitalDashboard() {
                                     {activeRequests.length > 0 ? (
                                         activeRequests.map((req, i) => (
                                             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} key={req.id} className="p-5 hover:bg-slate-800/40 transition-colors">
-                                                <div className="flex justify-between items-start mb-3">
+                                                <div className="flex flex-wrap justify-between items-start gap-2 mb-3">
                                                     <div className="flex items-center gap-3">
                                                         <span className="font-bold text-white text-lg tracking-tight">{req.id}</span>
                                                         <Badge variant="outline" className={req.urgency === 'Critical' ? 'border-red-500/30 text-red-400 bg-red-500/10' : 'border-amber-500/30 text-amber-400 bg-amber-500/10'}>

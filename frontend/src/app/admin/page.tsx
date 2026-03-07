@@ -168,7 +168,7 @@ export default function Home() {
                                 </Badge>
                             </div>
                         </CardHeader>
-                        <CardContent className="flex-1 p-0 relative z-0">
+                        <CardContent className="flex-1 p-0 relative z-0 min-h-[300px] sm:min-h-[420px]">
                             <div className="absolute inset-0 ring-1 ring-inset ring-slate-800/30 pointer-events-none z-[400]" />
                             {/* Leaflet Component Wrapper */}
                             <AIPredictionMap predictions={liveAlerts} activeRequests={liveRequests} />
