@@ -3,52 +3,50 @@
 import { useAuth } from "@/context/AuthContext";
 import { HeartPulse, LogOut } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 export function Navbar() {
     const { role, logout } = useAuth();
+    const pathname = usePathname();
 
-    if (!role) return null; // Don't show generic navbar on login page
+    if (!role || pathname === '/login') return null;
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-            <div className="container mx-auto flex h-16 items-center align-center justify-between px-4 max-w-7xl">
-                <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-red-600">
-                    <HeartPulse className="h-6 w-6" />
-                    <span>LifeLine AI</span>
+        <motion.header
+            initial={{ y: -40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="sticky top-4 z-50 mx-auto w-[calc(100%-2rem)] max-w-6xl rounded-full border border-slate-800/60 bg-slate-900/60 backdrop-blur-xl shadow-2xl mb-8"
+        >
+            <div className="flex h-14 items-center justify-between px-6">
+                <div className="flex items-center gap-2 font-bold text-lg tracking-tight text-white drop-shadow-sm">
+                    <HeartPulse className="h-5 w-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                    <span>LifeLine <span className="text-emerald-400/90 font-light">AI</span></span>
                 </div>
 
-                <nav className="flex gap-6 text-sm font-medium">
+                <nav className="hidden md:flex gap-8 text-sm font-medium">
                     {role === "admin" && (
-                        <>
-                            <Link href="/" className="text-foreground transition-colors hover:text-red-600">Global Dashboard</Link>
-                            <Link href="#" className="text-foreground/60 transition-colors hover:text-red-600">Analytics</Link>
-                        </>
+                        <Link href="/admin" className="text-slate-300 transition-all hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">Live Radar Matrix</Link>
                     )}
                     {role === "donor" && (
-                        <>
-                            <Link href="/donor" className="text-foreground transition-colors hover:text-red-600">My Dashboard</Link>
-                            <Link href="#" className="text-foreground/60 transition-colors hover:text-red-600">Leaderboard</Link>
-                            <Link href="#" className="text-foreground/60 transition-colors hover:text-red-600">Rewards</Link>
-                        </>
+                        <Link href="/donor" className="text-slate-300 transition-all hover:text-white">Active Grid</Link>
                     )}
                     {role === "hospital" && (
-                        <>
-                            <Link href="/hospital" className="text-foreground transition-colors hover:text-red-600">Hospital Portal</Link>
-                            <Link href="#" className="text-foreground/60 transition-colors hover:text-red-600">Inventory Management</Link>
-                        </>
+                        <Link href="/hospital" className="text-slate-300 transition-all hover:text-emerald-400">Emergency Dispatch</Link>
                     )}
                 </nav>
 
-                <div className="flex items-center space-x-4 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500 capitalize">{role}</span>
-                        <Button variant="ghost" size="icon" onClick={logout} className="text-slate-500 hover:text-red-600">
-                            <LogOut className="h-4 w-4" />
-                        </Button>
-                    </div>
+                <div className="flex items-center gap-4 shrink-0">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
+                        {role}
+                    </span>
+                    <Button variant="ghost" size="icon" onClick={logout} className="h-8 w-8 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        <LogOut className="h-4 w-4" />
+                    </Button>
                 </div>
             </div>
-        </header>
+        </motion.header>
     );
 }

@@ -3,9 +3,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Activity, Droplets, Snowflake, AlertCircle, Clock, MapPin, Send, CheckCircle2 } from "lucide-react";
+import { Activity, Droplets, Snowflake, AlertCircle, Clock, Send, CheckCircle2, ShieldAlert } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { motion } from "framer-motion";
 
 // Mock initial data
 const initialInventory = [
@@ -21,6 +22,7 @@ export default function HospitalDashboard() {
     // Stateful tracking
     const [inventory, setInventory] = useState(initialInventory);
     const [activeRequests, setActiveRequests] = useState<any[]>([]);
+    const [warnings, setWarnings] = useState<any[]>([]);
 
     useEffect(() => {
         if (!user) return;
@@ -38,8 +40,24 @@ export default function HospitalDashboard() {
             }
         };
 
+        const fetchWarnings = async () => {
+            try {
+                const res = await fetch("http://localhost:8000/api/warnings");
+                if (res.ok) {
+                    setWarnings(await res.json());
+                }
+            } catch (error) {
+                console.error("Failed to fetch warnings:", error);
+            }
+        };
+
         fetchActiveRequests();
-        const interval = setInterval(fetchActiveRequests, 5000);
+        fetchWarnings();
+
+        const interval = setInterval(() => {
+            fetchActiveRequests();
+            fetchWarnings();
+        }, 5000);
         return () => clearInterval(interval);
     }, [user]);
 
@@ -119,79 +137,102 @@ export default function HospitalDashboard() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-8 max-w-7xl relative">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+            <div className="absolute top-40 left-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+
             <div className="flex flex-col gap-8">
 
-                <div className="flex flex-col items-start gap-2 md:flex-row md:justify-between md:items-center">
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-start gap-2 md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Hospital Control Center</h1>
-                        <p className="text-muted-foreground mt-1">Manage Cold Chain Logistics and Emergency Match Requests.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-white">Hospital Control Center</h1>
+                        <p className="text-slate-400 mt-1">Manage Cold Chain Logistics and Emergency Match Requests.</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> System Online
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)] px-3 py-1">
+                            <span className="relative flex h-2 w-2 mr-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            System Online
                         </Badge>
                     </div>
-                </div>
+                </motion.div>
+
+                {warnings.length > 0 && (
+                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
+                        {warnings.map((warn) => (
+                            <div key={warn.id} className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-4 shadow-[0_4px_20px_rgba(239,68,68,0.1)]">
+                                <ShieldAlert className="h-6 w-6 text-red-500 mt-1 shrink-0 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                                <div>
+                                    <h3 className="text-red-400 font-bold tracking-tight">System Admin Warning: {warn.severity} Risk</h3>
+                                    <p className="text-slate-300 text-sm mt-1">{warn.message}</p>
+                                    <p className="text-xs text-red-500/70 mt-2 font-medium">{new Date(warn.timestamp).toLocaleTimeString()}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </motion.div>
+                )}
 
                 <div className="grid gap-6 md:grid-cols-3">
 
                     {/* Request Controls */}
-                    <Card className="md:col-span-1 flex flex-col shadow-sm border-red-100 h-fit">
-                        <CardHeader className="bg-red-50/50 border-b pb-4">
-                            <CardTitle className="flex items-center gap-2">
-                                <AlertCircle className="h-5 w-5 text-red-600" />
+                    <Card className="md:col-span-1 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] h-fit overflow-hidden">
+                        <CardHeader className="bg-slate-900/40 border-b border-slate-800/60 pb-4 relative">
+                            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500/80 to-red-500/10" />
+                            <CardTitle className="flex items-center gap-2 text-white">
+                                <AlertCircle className="h-5 w-5 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
                                 Dispatch Request
                             </CardTitle>
-                            <CardDescription>Launch a targeted request into the regional donor network.</CardDescription>
+                            <CardDescription className="text-slate-400">Launch a targeted request into the regional donor network.</CardDescription>
                         </CardHeader>
                         <CardContent className="p-6 flex-1 flex flex-col">
 
                             <form onSubmit={handleSimulateRequest} className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">Blood Type Required</label>
+                                    <label className="text-sm font-medium text-slate-300">Blood Type Required</label>
                                     <select
-                                        className="w-full p-2.5 border border-slate-200 rounded-md text-sm bg-white"
+                                        className="w-full p-2.5 border border-slate-700/50 rounded-md text-sm bg-slate-800/50 text-white focus:outline-none focus:ring-1 focus:ring-red-500/50 focus:border-red-500/50 transition-all font-medium"
                                         value={bloodType}
                                         onChange={(e) => setBloodType(e.target.value)}
                                     >
-                                        <option value="O-">O Negative (Universal)</option>
-                                        <option value="O+">O Positive</option>
-                                        <option value="A-">A Negative</option>
-                                        <option value="A+">A Positive</option>
-                                        <option value="B-">B Negative</option>
-                                        <option value="B+">B Positive</option>
-                                        <option value="AB-">AB Negative</option>
-                                        <option value="AB+">AB Positive</option>
+                                        <option className="bg-slate-900 text-white" value="O-">O Negative (Universal)</option>
+                                        <option className="bg-slate-900 text-white" value="O+">O Positive</option>
+                                        <option className="bg-slate-900 text-white" value="A-">A Negative</option>
+                                        <option className="bg-slate-900 text-white" value="A+">A Positive</option>
+                                        <option className="bg-slate-900 text-white" value="B-">B Negative</option>
+                                        <option className="bg-slate-900 text-white" value="B+">B Positive</option>
+                                        <option className="bg-slate-900 text-white" value="AB-">AB Negative</option>
+                                        <option className="bg-slate-900 text-white" value="AB+">AB Positive</option>
                                     </select>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-slate-700">Units Needed</label>
+                                        <label className="text-sm font-medium text-slate-300">Units Needed</label>
                                         <input
                                             type="number"
                                             min="1" max="50"
-                                            className="w-full p-2.5 border border-slate-200 rounded-md text-sm bg-white"
+                                            className="w-full p-2.5 border border-slate-700/50 rounded-md text-sm bg-slate-800/50 text-white focus:outline-none focus:ring-1 focus:ring-red-500/50 focus:border-red-500/50 transition-all font-medium"
                                             value={unitsNeeded}
                                             onChange={(e) => setUnitsNeeded(parseInt(e.target.value))}
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-medium text-slate-700">Urgency</label>
+                                        <label className="text-sm font-medium text-slate-300">Urgency</label>
                                         <select
-                                            className="w-full p-2.5 border border-slate-200 rounded-md text-sm bg-white"
+                                            className="w-full p-2.5 border border-slate-700/50 rounded-md text-sm bg-slate-800/50 text-white focus:outline-none focus:ring-1 focus:ring-red-500/50 focus:border-red-500/50 transition-all font-medium"
                                             value={urgency}
                                             onChange={(e) => setUrgency(e.target.value)}
                                         >
-                                            <option value="Standard">Standard</option>
-                                            <option value="Urgent">Urgent</option>
-                                            <option value="Critical">Critical</option>
+                                            <option className="bg-slate-900 text-white" value="Standard">Standard</option>
+                                            <option className="bg-slate-900 text-white" value="Urgent">Urgent</option>
+                                            <option className="bg-slate-900 text-white" value="Critical">Critical</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <Button type="submit" size="lg" className="w-full bg-red-600 hover:bg-red-700 shadow-sm mt-4" disabled={isMatching}>
+                                <Button type="submit" size="lg" className="w-full bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all mt-4 font-semibold tracking-wide" disabled={isMatching}>
                                     {isMatching ? "Routing via Hopcroft-Karp..." : <><Send className="h-4 w-4 mr-2" /> Broadcast Request</>}
                                 </Button>
                             </form>
@@ -201,53 +242,55 @@ export default function HospitalDashboard() {
                     <div className="md:col-span-2 flex flex-col gap-6">
 
                         {/* Active Requests Status Box */}
-                        <Card className="shadow-sm border-emerald-100">
-                            <CardHeader className="bg-slate-50 border-b pb-4">
+                        <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
+                            <CardHeader className="bg-slate-900/40 border-b border-slate-800/60 pb-4 relative">
+                                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/80 to-emerald-500/10" />
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Activity className="h-5 w-5 text-emerald-600" />
+                                        <CardTitle className="flex items-center gap-2 text-white">
+                                            <Activity className="h-5 w-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                                             Active Dispatch Radar
                                         </CardTitle>
-                                        <CardDescription>Live tracking of donors routed via Hopcroft-Karp.</CardDescription>
+                                        <CardDescription className="text-slate-400 mt-1">Live tracking of donors routed via Hopcroft-Karp.</CardDescription>
                                     </div>
-                                    <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">{activeRequests.length} Active</Badge>
+                                    <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">{activeRequests.length} Active</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="divide-y max-h-[300px] overflow-y-auto">
+                                <div className="divide-y divide-slate-800/60 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                                     {activeRequests.length > 0 ? (
-                                        activeRequests.map((req) => (
-                                            <div key={req.id} className="p-4 bg-white hover:bg-slate-50 transition-colors">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-slate-900">{req.id}</span>
-                                                        <Badge variant="outline" className={req.urgency === 'Critical' ? 'border-red-200 text-red-700 bg-red-50' : 'border-amber-200 text-amber-700 bg-amber-50'}>
+                                        activeRequests.map((req, i) => (
+                                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} key={req.id} className="p-5 hover:bg-slate-800/40 transition-colors">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="font-bold text-white text-lg tracking-tight">{req.id}</span>
+                                                        <Badge variant="outline" className={req.urgency === 'Critical' ? 'border-red-500/30 text-red-400 bg-red-500/10' : 'border-amber-500/30 text-amber-400 bg-amber-500/10'}>
                                                             {req.unitsNeeded} Units {req.bloodType}
                                                         </Badge>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-slate-500 mr-2">{new Date(req.timestamp).toLocaleTimeString()}</span>
-                                                        <Button size="sm" variant="outline" className="h-7 text-xs border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800" onClick={() => handleCloseRequest(req.id)}>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs text-slate-500 font-medium">{new Date(req.timestamp).toLocaleTimeString()}</span>
+                                                        <Button size="sm" variant="outline" className="h-8 text-xs font-semibold border-emerald-500/30 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white transition-all shadow-sm" onClick={() => handleCloseRequest(req.id)}>
                                                             Mark Received
                                                         </Button>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm font-medium text-emerald-700 mb-3 flex items-center gap-1.5">
+                                                <p className="text-sm font-medium text-emerald-400/90 mb-4 flex items-center gap-2 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50">
                                                     <CheckCircle2 className="h-4 w-4" /> {req.accepted_donors?.length || 0} donors have accepted and are en route (out of {req.matches} matched)
                                                 </p>
-                                                <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                                                <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3">
                                                     {req.routingDetails?.map((donor: any, idx: number) => (
-                                                        <div key={idx} className="bg-slate-50 border border-slate-100 rounded p-2 text-xs">
-                                                            <p className="font-semibold text-slate-700">Donor {donor.donor_id}</p>
-                                                            <p className="text-slate-500 flex items-center gap-1 mt-0.5"><Clock className="h-3 w-3" /> {donor.travel_time_mins}m ETA</p>
+                                                        <div key={idx} className="bg-slate-950/50 border border-slate-800 rounded-md p-3 text-xs shadow-inner">
+                                                            <p className="font-semibold text-slate-300">Donor {donor.donor_id}</p>
+                                                            <p className="text-slate-400 flex items-center gap-1.5 mt-1 font-medium"><Clock className="h-3.5 w-3.5 text-emerald-500/70" /> {donor.travel_time_mins}m ETA</p>
                                                         </div>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         ))
                                     ) : (
-                                        <div className="p-8 text-center text-slate-500 text-sm">
+                                        <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center">
+                                            <Activity className="h-8 w-8 mx-auto text-slate-700 mb-3 opacity-50" />
                                             No active dispatch requests running right now.
                                         </div>
                                     )}
@@ -256,34 +299,35 @@ export default function HospitalDashboard() {
                         </Card>
 
                         {/* Cold Chain Inventory */}
-                        <Card className="shadow-sm">
-                            <CardHeader className="bg-slate-50 border-b pb-4">
+                        <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
+                            <CardHeader className="bg-slate-900/40 border-b border-slate-800/60 pb-4 relative">
+                                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/80 to-blue-500/10" />
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Snowflake className="h-5 w-5 text-blue-500" />
+                                        <CardTitle className="flex items-center gap-2 text-white">
+                                            <Snowflake className="h-5 w-5 text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                                             Cold Chain Inventory (FIFO)
                                         </CardTitle>
-                                        <CardDescription>Units sorted by closest expiration date to prevent waste.</CardDescription>
+                                        <CardDescription className="text-slate-400 mt-1">Units sorted by closest expiration date to prevent waste.</CardDescription>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="divide-y relative max-h-[300px] overflow-y-auto">
+                                <div className="divide-y divide-slate-800/60 relative max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                                     {inventory.map((item) => (
-                                        <div key={item.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
+                                        <div key={item.id} className="p-5 flex items-center justify-between hover:bg-slate-800/40 transition-colors">
                                             <div className="flex items-center gap-4">
-                                                <div className={`h-10 w-10 font-bold flex items-center justify-center rounded ${item.priority === 'Critical' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'}`}>
+                                                <div className={`h-12 w-12 font-bold flex items-center justify-center rounded-lg shadow-inner border tracking-tight ${item.priority === 'Critical' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-slate-800/80 text-white border-slate-700'}`}>
                                                     {item.type}
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-slate-900">Batch #{item.id}</p>
-                                                    <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                        <Clock className="h-3 w-3" /> Expires in {item.expires} days
+                                                    <p className="font-semibold text-white tracking-wide">Batch #{item.id}</p>
+                                                    <p className="text-sm text-slate-400 flex items-center gap-1.5 mt-0.5 font-medium">
+                                                        <Clock className="h-3.5 w-3.5 text-blue-400/70" /> Expires in {item.expires} days
                                                     </p>
                                                 </div>
                                             </div>
-                                            <Badge variant={item.priority === 'Critical' ? 'destructive' : 'outline'} className={item.priority === 'Critical' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 'text-slate-500'}>
+                                            <Badge variant={item.priority === 'Critical' ? 'destructive' : 'outline'} className={item.priority === 'Critical' ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border-none' : 'text-slate-400 border-slate-700 bg-slate-950/50'}>
                                                 {item.priority === 'Critical' ? 'Critical Priority' : 'Stable'}
                                             </Badge>
                                         </div>

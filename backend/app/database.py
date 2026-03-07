@@ -24,6 +24,9 @@ users: Dict[str, dict] = {
 # Active requests list
 active_requests: List[dict] = []
 
+# Admin warnings list
+warnings: List[dict] = []
+
 # Helper functions
 def get_user_by_email(email: str) -> Optional[dict]:
     for user in users.values():
@@ -100,3 +103,14 @@ def close_request(req_id: str, donor_id: Optional[str] = None):
                  
         return req_to_close
     return None
+
+def add_warning(warning: dict):
+    if "id" not in warning:
+        warning["id"] = f"WARN-{uuid.uuid4().hex[:6].upper()}"
+    if "timestamp" not in warning:
+        warning["timestamp"] = datetime.now().isoformat()
+    warnings.append(warning)
+    return warning
+
+def get_warnings():
+    return sorted(warnings, key=lambda x: x.get("timestamp", ""), reverse=True)

@@ -11,7 +11,9 @@ from .database import (
     add_request, 
     close_request,
     get_all_active_requests,
-    accept_request
+    accept_request,
+    add_warning,
+    get_warnings
 )
 
 app = FastAPI(title="LifeLine AI Backend", version="1.0.0")
@@ -153,3 +155,24 @@ def broadcast_request(req: dict):
         "matched_donors_routing": match_result.get("matched_donors_routing", []),
         "request_ticket": new_req
     }
+
+# --- ADMIN WARNING ENDPOINTS ---
+
+@app.get("/api/warnings")
+def get_warnings_route():
+    return get_warnings()
+
+class WarningRequest(BaseModel):
+    region_id: str
+    bloodType: str
+    message: str
+    severity: str = "High"
+
+@app.post("/api/warnings")
+def create_warning(req: WarningRequest):
+    return add_warning({
+        "region_id": req.region_id,
+        "bloodType": req.bloodType,
+        "message": req.message,
+        "severity": req.severity
+    })
