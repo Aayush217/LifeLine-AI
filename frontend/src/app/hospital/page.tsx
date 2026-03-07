@@ -146,8 +146,8 @@ export default function HospitalDashboard() {
 
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-start gap-2 md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Hospital Control Center</h1>
-                        <p className="text-slate-400 mt-1">Manage Cold Chain Logistics and Emergency Match Requests.</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Hospital Control Center</h1>
+                        <p className="text-slate-400 mt-1 text-sm sm:text-base">Manage Cold Chain Logistics and Emergency Match Requests.</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)] px-3 py-1">
@@ -175,10 +175,10 @@ export default function HospitalDashboard() {
                     </motion.div>
                 )}
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
 
                     {/* Request Controls */}
-                    <Card className="md:col-span-1 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] h-fit overflow-hidden">
+                    <Card className="col-span-1 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] h-fit overflow-hidden">
                         <CardHeader className="bg-slate-900/40 border-b border-slate-800/60 pb-4 relative">
                             <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500/80 to-red-500/10" />
                             <CardTitle className="flex items-center gap-2 text-white">
@@ -240,7 +240,7 @@ export default function HospitalDashboard() {
                         </CardContent>
                     </Card>
 
-                    <div className="md:col-span-2 flex flex-col gap-6">
+                    <div className="col-span-1 lg:col-span-2 flex flex-col gap-6">
 
                         {/* Active Requests Status Box */}
                         <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">

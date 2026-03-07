@@ -74,8 +74,8 @@ export default function Home() {
                 {/* Header Section */}
                 <div className="flex flex-col items-start gap-2 md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">System Overview</h1>
-                        <p className="text-slate-400 mt-1">Live metrics from the AI prediction hub and global matching engine.</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">System Overview</h1>
+                        <p className="text-slate-400 mt-1 text-sm sm:text-base">Live metrics from the AI prediction hub and global matching engine.</p>
                     </div>
                 </div>
 
@@ -84,7 +84,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ staggerChildren: 0.1 }}
-                    className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+                    className="grid gap-4 grid-cols-2 lg:grid-cols-4"
                 >
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
                         <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-emerald-500/30 transition-all overflow-hidden relative group">
@@ -148,11 +148,11 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="grid gap-6 md:grid-cols-7"
+                    className="grid gap-6 grid-cols-1 lg:grid-cols-7"
                 >
 
-                    {/* Map spans 4 columns on desktop */}
-                    <Card className="md:col-span-4 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
+                    {/* Map spans 4 columns on desktop, full width on mobile */}
+                    <Card className="col-span-1 lg:col-span-4 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
                         <CardHeader className="pb-4 border-b border-slate-800/60 bg-slate-900/40">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -175,8 +175,8 @@ export default function Home() {
                         </CardContent>
                     </Card>
 
-                    {/* AI Alerts Sidebar spans 3 columns on desktop */}
-                    <Card className="md:col-span-3 flex flex-col h-[550px] bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
+                    {/* AI Alerts Sidebar spans 3 columns on desktop, full width on mobile */}
+                    <Card className="col-span-1 lg:col-span-3 flex flex-col bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
                         <CardHeader className="pb-4 border-b border-slate-800/60 bg-slate-900/40 shrink-0">
                             <CardTitle className="text-white">Urgent Shortage Alerts</CardTitle>
                             <CardDescription className="text-slate-400 mt-1">Regions flagged by the Proactive Prediction Service.</CardDescription>

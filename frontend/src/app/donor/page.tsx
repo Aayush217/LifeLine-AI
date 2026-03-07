@@ -101,8 +101,8 @@ export default function DonorDashboard() {
 
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-start gap-2 md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Welcome Back{user ? `, ${user.name}` : ''}</h1>
-                        <p className="text-slate-400 mt-1">Your blood type <strong className="text-red-500">{user?.bloodType}</strong> is needed to save lives.</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Welcome Back{user ? `, ${user.name.split(' ')[0]}` : ''}</h1>
+                        <p className="text-slate-400 mt-1 text-sm sm:text-base">Your blood type <strong className="text-red-500">{user?.bloodType}</strong> is needed to save lives.</p>
                     </div>
                     {user?.points && user.points > 1000 && (
                         <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-1.5 text-sm gap-2 shadow-[0_0_15px_rgba(52,211,153,0.15)]">
@@ -113,7 +113,7 @@ export default function DonorDashboard() {
                 </motion.div>
 
                 {/* Gamification Stats */}
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ staggerChildren: 0.1 }} className="grid gap-4 md:grid-cols-3">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ staggerChildren: 0.1 }} className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
                         <Card className="bg-gradient-to-br from-red-600 to-red-900 text-white border-red-500/30 shadow-[0_8px_30px_rgba(220,38,38,0.2)] overflow-hidden relative group">
                             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-white/0 via-white/40 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -165,9 +165,8 @@ export default function DonorDashboard() {
                 </motion.div>
 
                 {/* Alerts targeting this donor */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="grid gap-6 md:grid-cols-3">
-                    {/* Main left column: Active Requests map */}
-                    <div className="md:col-span-2">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
                         <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
                             <ShieldAlert className="h-5 w-5 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" /> Urgent Dispatches in Jaipur
                         </h2>
@@ -231,7 +230,7 @@ export default function DonorDashboard() {
                     </div>
 
                     {/* Right column: Leaderboard + History */}
-                    <div className="md:col-span-1 border-l pl-6 border-slate-800/60 flex flex-col gap-8">
+                    <div className="col-span-1 lg:border-l lg:pl-6 border-slate-800/60 flex flex-col gap-8">
                         <div>
                             <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
                                 <Trophy className="h-5 w-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" /> Jaipur Leaderboard
