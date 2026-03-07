@@ -1,0 +1,11 @@
+# Render deployment configuration for the FastAPI backend
+# Render will auto-detect this file and use these settings
+services:
+  - type: web
+    name: lifeline-ai-backend
+    env: python
+    buildCommand: pip install -r requirements.txt && cd backend && python train_models.py
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

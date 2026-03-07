@@ -7,6 +7,7 @@ import { Activity, ShieldAlert, Navigation, Medal, Award, Star, HeartPulse, Trop
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
 
 export default function DonorDashboard() {
     const { user } = useAuth();
@@ -29,7 +30,7 @@ export default function DonorDashboard() {
         // Fetch active requests triggered by hospitals
         const fetchRequests = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/requests/active");
+                const res = await fetch(api.activeRequests);
                 if (res.ok) {
                     const data = await res.json();
                     setLiveRequests(data);
@@ -41,7 +42,7 @@ export default function DonorDashboard() {
 
         const fetchLeaderboard = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/leaderboard");
+                const res = await fetch(api.leaderboard);
                 if (res.ok) {
                     const data = await res.json();
                     setLeaderboard(data);
@@ -67,7 +68,7 @@ export default function DonorDashboard() {
         if (!user) return;
         setIsAccepting(requestId);
         try {
-            const res = await fetch(`http://localhost:8000/api/requests/${requestId}/accept`, {
+            const res = await fetch(api.acceptRequest(requestId), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ donor_id: user.id })

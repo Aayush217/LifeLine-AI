@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { HeartPulse, User as UserIcon, Building2, ShieldCheck, ArrowRight, Activity, MapPin } from "lucide-react";
 import { useState } from "react";
+import { api } from "@/lib/api";
 
 const JAIPUR_ZONES = [
     { name: "Central (City Palace)", lat: 26.9239, lng: 75.8267 },
@@ -39,7 +40,7 @@ export default function LoginPage() {
 
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:8000/api/auth/login", {
+            const res = await fetch(api.login, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
@@ -76,7 +77,7 @@ export default function LoginPage() {
         };
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/register", {
+            const res = await fetch(api.register, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)

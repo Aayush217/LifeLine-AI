@@ -7,6 +7,7 @@ import { Activity, Droplets, Snowflake, AlertCircle, Clock, Send, CheckCircle2, 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
 
 // Mock initial data
 const initialInventory = [
@@ -29,7 +30,7 @@ export default function HospitalDashboard() {
 
         const fetchActiveRequests = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/requests/active");
+                const res = await fetch(api.activeRequests);
                 if (res.ok) {
                     const data = await res.json();
                     // Filter down to only requests created by this hospital
@@ -42,7 +43,7 @@ export default function HospitalDashboard() {
 
         const fetchWarnings = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/warnings");
+                const res = await fetch(api.warnings);
                 if (res.ok) {
                     setWarnings(await res.json());
                 }
@@ -83,7 +84,7 @@ export default function HospitalDashboard() {
         };
 
         try {
-            const res = await fetch("http://localhost:8000/api/requests", {
+            const res = await fetch(api.requests, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -115,7 +116,7 @@ export default function HospitalDashboard() {
         try {
             // Tell backend to close this request, assuming donor #1 arrived for MVP scope
             const assumedDonorId = closedReq.routingDetails?.[0]?.donor_id || "mock_d1";
-            await fetch(`http://localhost:8000/api/requests/${requestId}/close`, {
+            await fetch(api.closeRequest(requestId), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ donor_id: assumedDonorId })

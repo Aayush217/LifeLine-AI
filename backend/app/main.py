@@ -19,9 +19,17 @@ from .database import (
 app = FastAPI(title="LifeLine AI Backend", version="1.0.0")
 
 # Configure CORS so the Next.js frontend can connect
+# Allows both local dev (localhost:3000) and any Vercel production domain
+ORIGINS = [
+    "http://localhost:3000",
+    "https://lifeline-ai.vercel.app",     # your Vercel URL (update if different)
+    "https://*.vercel.app",              # allow all Vercel preview deployments
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # matches all vercel preview URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

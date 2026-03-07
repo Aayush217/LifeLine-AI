@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, Droplets, Users, ShieldAlert, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
 
 export default function Home() {
     const [liveAlerts, setLiveAlerts] = useState<PredictionData[]>([]);
@@ -16,7 +17,7 @@ export default function Home() {
 
     const handleBroadcastWarning = async (alert: PredictionData) => {
         try {
-            const res = await fetch("http://localhost:8000/api/warnings", {
+            const res = await fetch(api.warnings, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -37,7 +38,7 @@ export default function Home() {
     useEffect(() => {
         const fetchPredictions = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/predictions");
+                const res = await fetch(api.predictions);
                 if (res.ok) setLiveAlerts(await res.json());
             } catch (error) {
                 console.error("Failed to fetch ML alerts for sidebar:", error);
@@ -46,7 +47,7 @@ export default function Home() {
 
         const fetchRequests = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/requests/active");
+                const res = await fetch(api.activeRequests);
                 if (res.ok) setLiveRequests(await res.json());
             } catch (error) {
                 console.error("Failed to fetch active requests:", error);
