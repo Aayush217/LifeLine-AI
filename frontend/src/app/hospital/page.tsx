@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Activity, Droplets, Snowflake, AlertCircle, Clock, Send, CheckCircle2, ShieldAlert } from "lucide-react";
+import { Activity, Droplets, Snowflake, AlertCircle, Clock, Send, CheckCircle2, ShieldAlert, HeartPulse } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
@@ -24,6 +24,7 @@ export default function HospitalDashboard() {
     const [inventory, setInventory] = useState(initialInventory);
     const [activeRequests, setActiveRequests] = useState<any[]>([]);
     const [warnings, setWarnings] = useState<any[]>([]);
+    const [proactiveDonations, setProactiveDonations] = useState<any[]>([]);
 
     useEffect(() => {
         if (!user) return;
@@ -52,12 +53,25 @@ export default function HospitalDashboard() {
             }
         };
 
+        const fetchProactive = async () => {
+            try {
+                const res = await fetch(api.proactiveDonations);
+                if (res.ok) {
+                    setProactiveDonations(await res.json());
+                }
+            } catch (error) {
+                console.error("Failed to fetch proactive donations:", error);
+            }
+        };
+
         fetchActiveRequests();
         fetchWarnings();
+        fetchProactive();
 
         const interval = setInterval(() => {
             fetchActiveRequests();
             fetchWarnings();
+            fetchProactive();
         }, 5000);
         return () => clearInterval(interval);
     }, [user]);
@@ -298,6 +312,49 @@ export default function HospitalDashboard() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* Incoming Proactive Donations */}
+                        {proactiveDonations.length > 0 && (
+                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">
+                                    <CardHeader className="bg-slate-900/40 border-b border-slate-800/60 pb-4 relative">
+                                        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/80 to-emerald-500/10" />
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="flex items-center gap-2 text-white">
+                                                    <HeartPulse className="h-5 w-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                                                    Incoming Proactive Donations
+                                                </CardTitle>
+                                                <CardDescription className="text-slate-400 mt-1">Donors scheduled to arrive based on AI shortage predictions.</CardDescription>
+                                            </div>
+                                            <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">{proactiveDonations.length} Expected</Badge>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-0">
+                                        <div className="divide-y divide-slate-800/60 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                                            {proactiveDonations.map((don) => (
+                                                <div key={don.id} className="p-5 flex items-center justify-between hover:bg-slate-800/40 transition-colors">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-12 w-12 font-bold flex items-center justify-center rounded-lg shadow-inner border tracking-tight bg-slate-800/80 text-white border-slate-700">
+                                                            {don.bloodType}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-semibold text-white tracking-wide">Donor: {don.donor_id}</p>
+                                                            <p className="text-sm text-slate-400 mt-0.5 font-medium">
+                                                                Heading to: <strong className="text-white">{don.hospital_name}</strong>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                                        {don.status}
+                                                    </Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
 
                         {/* Cold Chain Inventory */}
                         <Card className="bg-slate-900/60 backdrop-blur-xl border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden">

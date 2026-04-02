@@ -9,11 +9,24 @@ import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1);
+};
+
 export default function DonorDashboard() {
     const { user } = useAuth();
     const [liveRequests, setLiveRequests] = useState<any[]>([]);
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [isAccepting, setIsAccepting] = useState<string | null>(null);
+    const [predictions, setPredictions] = useState<any[]>([]);
+    const [selfDonatedTo, setSelfDonatedTo] = useState<string | null>(null);
 
     // Donation history is derived from the user's livesSaved/points for a realistic-feeling feed
     const livesCount = user?.livesSaved ?? 0;
@@ -52,8 +65,21 @@ export default function DonorDashboard() {
             }
         };
 
+        const fetchPredictions = async () => {
+            try {
+                const res = await fetch(api.predictions);
+                if (res.ok) {
+                    const data = await res.json();
+                    setPredictions(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch predictions:", error);
+            }
+        };
+
         fetchRequests();
         fetchLeaderboard();
+        fetchPredictions();
 
         // Polling effect for a true live feel
         const interval = setInterval(() => {
@@ -89,6 +115,26 @@ export default function DonorDashboard() {
             console.error("Failed to accept match:", error);
         } finally {
             setIsAccepting(null);
+        }
+    };
+
+
+    const handleScheduleSelfDonation = async (hospital_id: string, hospital_name: string) => {
+        if (!user) return;
+        setSelfDonatedTo(hospital_id);
+        try {
+            await fetch(api.proactiveDonations, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    donor_id: user.id || "anonymous_donor",
+                    hospital_id: hospital_id,
+                    hospital_name: hospital_name,
+                    bloodType: user.bloodType || "Unknown"
+                })
+            });
+        } catch (error) {
+            console.error("Failed to schedule self donation:", error);
         }
     };
 
@@ -227,6 +273,64 @@ export default function DonorDashboard() {
                                 </Card>
                             )}
                         </div>
+
+                        {/* Proactive Self-Donation Section */}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mt-8">
+                            <h2 className="text-xl font-bold tracking-tight text-white mb-4 flex items-center gap-2">
+                                <HeartPulse className="h-5 w-5 text-emerald-500 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" /> Proactive Donation
+                            </h2>
+                            <Card className="bg-slate-900/60 backdrop-blur-xl border border-emerald-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden relative">
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500/80 to-emerald-600/20" />
+                                <CardContent className="p-6">
+                                    <p className="text-sm text-slate-300 mb-4 leading-relaxed">
+                                        Step up and donate proactively. Explore all hospitals facing AI-predicted blood shortages and locate the ones nearest to you.
+                                    </p>
+                                    <div className="grid gap-4 mt-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent pr-2">
+                                        {predictions.length > 0 ? (
+                                            [...predictions].sort((a, b) => b.predictedShortage - a.predictedShortage).map((hosp: any) => {
+                                                const distance = calculateDistance(user?.location?.lat || 26.9124, user?.location?.lng || 75.7873, hosp.lat, hosp.lng);
+                                                return (
+                                                    <div key={hosp.id} className="bg-slate-950/60 border border-slate-700/60 rounded-md p-4 mb-2">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <h3 className="text-white font-semibold flex items-center gap-2">
+                                                                    {hosp.name || hosp.id}
+                                                                    <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                                        <Navigation className="h-3 w-3" /> {distance} km away
+                                                                    </span>
+                                                                </h3>
+                                                                <p className="text-xs text-slate-400 mt-1">Predicted Shortage: <strong className="text-red-400">{hosp.predictedShortage} units</strong></p>
+                                                            </div>
+                                                            <Badge className={hosp.severity === 'High' ? "bg-red-500/20 text-red-400 border-red-500/30" : hosp.severity === 'Medium' ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-blue-500/20 text-blue-400 border-blue-500/30"}>
+                                                                {hosp.severity} Need
+                                                            </Badge>
+                                                        </div>
+                                                        <p className="text-xs text-slate-500 mb-4">Reason: {hosp.reason}</p>
+
+                                                        {selfDonatedTo === hosp.id ? (
+                                                            <div className="w-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 py-3 px-4 rounded-md text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(52,211,153,0.15)]">
+                                                                <HeartPulse className="h-4 w-4 fill-emerald-500/50" /> Donation Scheduled!
+                                                            </div>
+                                                        ) : (
+                                                            <Button 
+                                                                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(52,211,153,0.3)] font-semibold tracking-wide transition-all h-11"
+                                                                onClick={() => handleScheduleSelfDonation(hosp.id, hosp.name || hosp.id)}
+                                                            >
+                                                                Schedule Donation Here
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="text-center text-slate-500 py-4">
+                                                Loading prediction data...
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </div>
 
                     {/* Right column: Leaderboard + History */}

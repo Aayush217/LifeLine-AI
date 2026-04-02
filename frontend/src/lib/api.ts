@@ -22,4 +22,7 @@ export const api = {
 
     // Leaderboard
     leaderboard: `${API_BASE}/api/leaderboard`,
+
+    // Proactive Donations
+    proactiveDonations: `${API_BASE}/api/donations/proactive`,
 };
