@@ -121,6 +121,7 @@ def get_shortage_forecasts():
         if severity != "Normal":
             predictions.append({
                 "id": region["id"],
+                "name": region["name"],
                 "lat": region["lat"],
                 "lng": region["lng"],
                 "severity": severity,

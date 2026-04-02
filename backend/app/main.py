@@ -13,7 +13,9 @@ from .database import (
     get_all_active_requests,
     accept_request,
     add_warning,
-    get_warnings
+    get_warnings,
+    add_proactive_donation,
+    get_proactive_donations
 )
 
 app = FastAPI(title="LifeLine AI Backend", version="1.0.0")
@@ -184,3 +186,25 @@ def create_warning(req: WarningRequest):
         "message": req.message,
         "severity": req.severity
     })
+
+# --- PROACTIVE DONATIONS ENDPOINTS ---
+
+class ProactiveDonationRequest(BaseModel):
+    donor_id: str
+    hospital_id: str
+    hospital_name: str
+    bloodType: str
+
+@app.post("/api/donations/proactive")
+def create_proactive_donation(req: ProactiveDonationRequest):
+    return add_proactive_donation({
+        "donor_id": req.donor_id,
+        "hospital_id": req.hospital_id,
+        "hospital_name": req.hospital_name,
+        "bloodType": req.bloodType,
+        "status": "Scheduled"
+    })
+
+@app.get("/api/donations/proactive")
+def get_proactive_donations_route():
+    return get_proactive_donations()

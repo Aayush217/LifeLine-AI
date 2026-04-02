@@ -27,6 +27,9 @@ active_requests: List[dict] = []
 # Admin warnings list
 warnings: List[dict] = []
 
+# Proactive donations list
+proactive_donations: List[dict] = []
+
 # Helper functions
 def get_user_by_email(email: str) -> Optional[dict]:
     for user in users.values():
@@ -114,3 +117,14 @@ def add_warning(warning: dict):
 
 def get_warnings():
     return sorted(warnings, key=lambda x: x.get("timestamp", ""), reverse=True)
+
+def add_proactive_donation(donation: dict):
+    if "id" not in donation:
+        donation["id"] = f"PRO-{uuid.uuid4().hex[:6].upper()}"
+    if "timestamp" not in donation:
+        donation["timestamp"] = datetime.now().isoformat()
+    proactive_donations.append(donation)
+    return donation
+
+def get_proactive_donations():
+    return sorted(proactive_donations, key=lambda x: x.get("timestamp", ""), reverse=True)
