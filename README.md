@@ -24,7 +24,7 @@ LifeLine AI revolutionizes the blood donation supply chain using **Machine Learn
 ## Tech Stack
 - **Frontend:** Next.js (App Router), React, Tailwind CSS, shadcn/ui, Leaflet (React-Leaflet)
 - **Backend:** Python FastAPI, Scikit-Learn, XGBoost, Uvicorn
-- **Algorithms:** Hopcroft-Karp Bipartite Matching, OSRM (Open Source Routing Machine)
+- **Algorithms:** Hopcroft-Karp Bipartite Matching, OSRMs (Open Source Routing Machine)
 
 ## Getting Started
 
@@ -41,3 +41,37 @@ LifeLine AI revolutionizes the blood donation supply chain using **Machine Learn
 3. Run the development server: `npm run dev`
 4. Visit `localhost:3000` and login to the different portals!
    - **Admin Login:** `admin@lifeline.com` (pw: `admin`)
+
+flowchart TD
+
+A[External Datasets<br>Accident Risk<br>Weather Severity<br>Traffic Density<br>Historical Demand]
+
+A --> B[Machine Learning Prediction Engine]
+
+B --> B1[Random Forest Classifier<br>Predicts Blood Shortage]
+B --> B2[XGBoost Regressor<br>Predicts Required Blood Units]
+
+B1 --> C[Shortage / Emergency Detected]
+B2 --> C
+
+C --> D[Hospital Request & Blood Requirement<br>Blood Group • Units • Priority • Location]
+
+D --> E[Donor Matching Engine<br>Hopcroft-Karp Bipartite Matching]
+
+E --> E1[Creates Hospital ↔ Donor Graph]
+E1 --> E2[Finds Maximum Optimal Match]
+E2 --> E3[Selects Eligible Nearby Donors]
+
+E3 --> F[Smart Routing & ETA Calculation<br>OSRM Routing Engine]
+
+F --> F1[Traffic-Aware ETA]
+F1 --> F2[Avoids Gridlocks]
+F2 --> F3[Prioritizes Fastest Donors]
+
+F3 --> G[Hospital Portal]
+F3 --> H[Donor Portal]
+
+G --> I[Real-Time Admin Dashboard]
+H --> I
+
+```
