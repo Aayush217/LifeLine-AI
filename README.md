@@ -41,3 +41,96 @@ LifeLine AI revolutionizes the blood donation supply chain using **Machine Learn
 3. Run the development server: `npm run dev`
 4. Visit `localhost:3000` and login to the different portals!
    - **Admin Login:** `admin@lifeline.com` (pw: `admin`)
+
+   ┌──────────────────────────────────────────────────────────────┐
+│                     LIFE LINE AI SYSTEM                     │
+│      Predictive Blood Donation & Logistics Network          │
+└──────────────────────────────────────────────────────────────┘
+
+
+                    ┌──────────────────────┐
+                    │  External Datasets   │
+                    │----------------------│
+                    │ • Accident Risk      │
+                    │ • Weather Severity   │
+                    │ • Traffic Density    │
+                    │ • Weekend/Holiday    │
+                    │ • Historical Demand  │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│              MACHINE LEARNING PREDICTION ENGINE             │
+├──────────────────────────────────────────────────────────────┤
+│ 1. Classification Model (Random Forest)                     │
+│    → Predicts Blood Shortage Probability                    │
+│                                                             │
+│ 2. Regression Model (XGBoost)                               │
+│    → Predicts Exact Blood Units Required                    │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│             SHORTAGE / EMERGENCY DETECTED                   │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│            HOSPITAL REQUEST & BLOOD REQUIREMENT             │
+├──────────────────────────────────────────────────────────────┤
+│ • Blood Group Needed                                        │
+│ • Units Required                                            │
+│ • Hospital Location                                         │
+│ • Emergency Priority                                        │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│             DONOR MATCHING ENGINE (GRAPH THEORY)            │
+├──────────────────────────────────────────────────────────────┤
+│ Hopcroft-Karp Bipartite Matching Algorithm                  │
+│                                                             │
+│ • Creates Hospital ↔ Donor Graph                            │
+│ • Finds Maximum Optimal Match                               │
+│ • Prevents Spam Broadcasting                                │
+│ • Selects Only Eligible Nearby Donors                       │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│            SMART ROUTING & ETA CALCULATION                  │
+├──────────────────────────────────────────────────────────────┤
+│ OSRM (Open Source Routing Machine)                          │
+│                                                             │
+│ • Calculates Real Road Distance                             │
+│ • Uses Traffic-aware ETA                                    │
+│ • Avoids Gridlocks                                          │
+│ • Prioritizes Faster Arrival Time                           │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+        ┌──────────────────┴──────────────────┐
+        │                                     │
+        ▼                                     ▼
+
+┌───────────────────────┐        ┌──────────────────────────┐
+│   HOSPITAL PORTAL     │        │      DONOR PORTAL        │
+├───────────────────────┤        ├──────────────────────────┤
+│ • Emergency Requests  │        │ • Match Notifications    │
+│ • Blood Tracking      │        │ • Live ETA               │
+│ • Unit Monitoring     │        │ • Donation Dashboard     │
+│ • Admin Dispatch      │        │ • Rewards & Gamification │
+└───────────┬───────────┘        └────────────┬─────────────┘
+            │                                  │
+            └──────────────┬───────────────────┘
+                           ▼
+
+┌──────────────────────────────────────────────────────────────┐
+│                 REAL-TIME ADMIN DASHBOARD                   │
+├──────────────────────────────────────────────────────────────┤
+│ • AI Prediction Heatmap                                     │
+│ • Live Emergency Monitoring                                 │
+│ • Dispatch Coordination                                     │
+│ • Active Donor Tracking                                     │
+│ • Blood Supply Analytics                                    │
+└──────────────────────────────────────────────────────────────┘
