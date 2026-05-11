@@ -24,7 +24,7 @@ LifeLine AI revolutionizes the blood donation supply chain using **Machine Learn
 ## Tech Stack
 - **Frontend:** Next.js (App Router), React, Tailwind CSS, shadcn/ui, Leaflet (React-Leaflet)
 - **Backend:** Python FastAPI, Scikit-Learn, XGBoost, Uvicorn
-- **Algorithms:** Hopcroft-Karp Bipartite Matching, OSRM (Open Source Routing Machine)
+- **Algorithms:** Hopcroft-Karp Bipartite Matching, OSRMs (Open Source Routing Machine)
 
 ## Getting Started
 
