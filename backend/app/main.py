@@ -24,8 +24,9 @@ app = FastAPI(title="LifeLine AI Backend", version="1.0.0")
 # Allows both local dev (localhost:3000) and any Vercel production domain
 ORIGINS = [
     "http://localhost:3000",
-    "https://lifeline-ai.vercel.app",     # your Vercel URL (update if different)
-    "https://*.vercel.app",              # allow all Vercel preview deployments
+    "https://lifelineai-one.vercel.app",   # actual Vercel deployment URL
+    "https://lifeline-ai.vercel.app",      # legacy URL (keep for safety)
+    "https://*.vercel.app",                # allow all Vercel preview deployments
 ]
 
 app.add_middleware(

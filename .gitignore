@@ -10,6 +10,9 @@ env/
 *.egg-info/
 dist/
 
+# Node
+backend/node_modules/
+
 # Environment variables — NEVER commit real secrets
 .env
 .env.local
