@@ -39,8 +39,7 @@ LifeLine AI revolutionizes the blood donation supply chain using **Machine Learn
 1. Navigate to the `frontend` folder.
 2. Install dependencies: `npm install`
 3. Run the development server: `npm run dev`
-4. Visit `localhost:3000` and login to the different portals!
-   - **Admin Login:** `admin@lifeline.com` (pw: `admin`)
+
 
 
 
