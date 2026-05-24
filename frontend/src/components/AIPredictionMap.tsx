@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 
@@ -29,6 +29,16 @@ export type PredictionData = {
     reason: string;
     predictedShortage: number;
     bloodType: string;
+    localScores?: Record<string, number>;
+};
+
+export type ActiveRequestData = {
+    id: string;
+    lat: number;
+    lng: number;
+    unitsNeeded: number;
+    bloodType: string;
+    matches: number;
 };
 
 export default function AIPredictionMap({
@@ -36,7 +46,7 @@ export default function AIPredictionMap({
     activeRequests = []
 }: {
     predictions?: PredictionData[],
-    activeRequests?: any[]
+    activeRequests?: ActiveRequestData[]
 }) {
     // Standard center point for Jaipur
     const centerPosition: [number, number] = [26.9124, 75.7873];

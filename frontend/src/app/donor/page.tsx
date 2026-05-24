@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Activity, ShieldAlert, Navigation, Medal, Award, Star, HeartPulse, Trophy } from "lucide-react";
@@ -20,12 +20,16 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
     return (R * c).toFixed(1);
 };
 
+type RequestAlert = { id: string; urgency: string; unitsNeeded: number; bloodType: string; eta?: number; accepted_donors?: string[] };
+type LeaderboardUser = { id: string; name: string; bloodType: string; livesSaved: number; points: number };
+type Prediction = { id: string; name?: string; lat: number; lng: number; predictedShortage: number; severity: string; reason: string };
+
 export default function DonorDashboard() {
     const { user } = useAuth();
-    const [liveRequests, setLiveRequests] = useState<any[]>([]);
-    const [leaderboard, setLeaderboard] = useState<any[]>([]);
+    const [liveRequests, setLiveRequests] = useState<RequestAlert[]>([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [isAccepting, setIsAccepting] = useState<string | null>(null);
-    const [predictions, setPredictions] = useState<any[]>([]);
+    const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [selfDonatedTo, setSelfDonatedTo] = useState<string | null>(null);
 
     // Donation history is derived from the user's livesSaved/points for a realistic-feeling feed
@@ -247,7 +251,7 @@ export default function DonorDashboard() {
                                                     </p>
                                                 </div>
 
-                                                {alert.accepted_donors?.includes(user?.id) ? (
+                                                {alert.accepted_donors?.includes(user?.id || '') ? (
                                                     <div className="w-full mt-5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 py-3 px-4 rounded-md text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(52,211,153,0.15)]">
                                                         <HeartPulse className="h-4 w-4 fill-emerald-500/50" /> Hospital Notified! You are en route.
                                                     </div>
@@ -287,7 +291,7 @@ export default function DonorDashboard() {
                                     </p>
                                     <div className="grid gap-4 mt-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent pr-2">
                                         {predictions.length > 0 ? (
-                                            [...predictions].sort((a, b) => b.predictedShortage - a.predictedShortage).map((hosp: any) => {
+                                            [...predictions].sort((a, b) => b.predictedShortage - a.predictedShortage).map((hosp) => {
                                                 const distance = calculateDistance(user?.location?.lat || 26.9124, user?.location?.lng || 75.7873, hosp.lat, hosp.lng);
                                                 return (
                                                     <div key={hosp.id} className="bg-slate-950/60 border border-slate-700/60 rounded-md p-4 mb-2">

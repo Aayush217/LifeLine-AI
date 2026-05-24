@@ -38,8 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (savedUserStr) {
             try {
                 const savedUser = JSON.parse(savedUserStr);
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setUser(savedUser);
-            } catch (e) {
+            } catch {
                 console.error("Failed to parse user from localstorage");
                 localStorage.removeItem("lifeline_user");
                 if (pathname !== "/login") router.push("/login");

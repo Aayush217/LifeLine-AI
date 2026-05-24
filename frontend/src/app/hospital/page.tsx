@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Activity, Droplets, Snowflake, AlertCircle, Clock, Send, CheckCircle2, ShieldAlert, HeartPulse } from "lucide-react";
+import { Activity, Snowflake, AlertCircle, Clock, Send, CheckCircle2, ShieldAlert, HeartPulse } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
@@ -22,9 +22,13 @@ export default function HospitalDashboard() {
 
     // Stateful tracking
     const [inventory, setInventory] = useState(initialInventory);
-    const [activeRequests, setActiveRequests] = useState<any[]>([]);
-    const [warnings, setWarnings] = useState<any[]>([]);
-    const [proactiveDonations, setProactiveDonations] = useState<any[]>([]);
+type ActiveRequest = { id: string; hospital_id: string; timestamp: string | number; bloodType: string; unitsNeeded: number; urgency: string; accepted_donors?: string[]; matches?: number; routingDetails?: { donor_id: string; travel_time_mins: number }[] };
+type Warning = { id: string; severity: string; message: string; timestamp: string | number };
+type ProactiveDonation = { id: string; donor_id: string; bloodType: string; hospital_name: string; status: string };
+
+    const [activeRequests, setActiveRequests] = useState<ActiveRequest[]>([]);
+    const [warnings, setWarnings] = useState<Warning[]>([]);
+    const [proactiveDonations, setProactiveDonations] = useState<ProactiveDonation[]>([]);
 
     useEffect(() => {
         if (!user) return;
@@ -35,7 +39,7 @@ export default function HospitalDashboard() {
                 if (res.ok) {
                     const data = await res.json();
                     // Filter down to only requests created by this hospital
-                    setActiveRequests(data.filter((req: any) => req.hospital_id === user.id));
+                    setActiveRequests(data.filter((req: ActiveRequest) => req.hospital_id === user.id));
                 }
             } catch (error) {
                 console.error("Failed to fetch active requests:", error);
@@ -294,7 +298,7 @@ export default function HospitalDashboard() {
                                                     <CheckCircle2 className="h-4 w-4" /> {req.accepted_donors?.length || 0} donors have accepted and are en route (out of {req.matches} matched)
                                                 </p>
                                                 <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                    {req.routingDetails?.map((donor: any, idx: number) => (
+                                                    {req.routingDetails?.map((donor, idx: number) => (
                                                         <div key={idx} className="bg-slate-950/50 border border-slate-800 rounded-md p-3 text-xs shadow-inner">
                                                             <p className="font-semibold text-slate-300">Donor {donor.donor_id}</p>
                                                             <p className="text-slate-400 flex items-center gap-1.5 mt-1 font-medium"><Clock className="h-3.5 w-3.5 text-emerald-500/70" /> {donor.travel_time_mins}m ETA</p>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth, User } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HeartPulse, User as UserIcon, Building2, ShieldCheck, ArrowRight, Activity, MapPin } from "lucide-react";
+import { HeartPulse, User as UserIcon, Building2, ArrowRight, Activity, MapPin } from "lucide-react";
 import { useState } from "react";
 import { api } from "@/lib/api";
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
             } else {
                 setError(data.detail || "Login failed");
             }
-        } catch (err) {
+        } catch {
             setError("Server connection failed. Is FastAPI running?");
         } finally {
             setLoading(false);
@@ -89,7 +89,7 @@ export default function LoginPage() {
             } else {
                 setError(data.detail || "Registration failed");
             }
-        } catch (err) {
+        } catch {
             setError("Server connection failed. Is FastAPI running?");
         } finally {
             setLoading(false);

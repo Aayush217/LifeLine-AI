@@ -1,6 +1,6 @@
 "use client";
 
-import AIPredictionMap, { PredictionData } from "@/components/AIPredictionMap";
+import AIPredictionMap, { PredictionData, ActiveRequestData } from "@/components/AIPredictionMap";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { api } from "@/lib/api";
 
 export default function Home() {
     const [liveAlerts, setLiveAlerts] = useState<PredictionData[]>([]);
-    const [liveRequests, setLiveRequests] = useState<any[]>([]);
+    const [liveRequests, setLiveRequests] = useState<ActiveRequestData[]>([]);
     const [warnedRegions, setWarnedRegions] = useState<Set<string>>(new Set());
     const [expandedXAI, setExpandedXAI] = useState<string | null>(null);
 
@@ -218,7 +218,7 @@ export default function Home() {
                                                     </button>
                                                     {expandedXAI === alert.id && (
                                                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2">
-                                                            {Object.entries((alert as any).localScores || {}).sort(([, a]: any, [, b]: any) => b - a).map(([feat, score]: [string, any]) => (
+                                                            {Object.entries(alert.localScores || {}).sort(([, a], [, b]) => b - a).map(([feat, score]) => (
                                                                 <div key={feat}>
                                                                     <div className="flex justify-between text-[11px] mb-1">
                                                                         <span className="text-slate-400">{feat}</span>
