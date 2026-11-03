@@ -34,18 +34,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Hydrate from localStorage
+        const isAuthPage = pathname === "/login" || pathname === "/admin/login";
         const savedUserStr = localStorage.getItem("lifeline_user");
         if (savedUserStr) {
             try {
                 const savedUser = JSON.parse(savedUserStr);
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setUser(savedUser);
             } catch {
                 console.error("Failed to parse user from localstorage");
                 localStorage.removeItem("lifeline_user");
-                if (pathname !== "/login") router.push("/login");
+                if (!isAuthPage) router.push("/login");
             }
-        } else if (pathname !== "/login") {
+        } else if (!isAuthPage) {
             router.push("/login");
         }
     }, [pathname, router]);
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = (newUser: User) => {
         setUser(newUser);
         localStorage.setItem("lifeline_user", JSON.stringify(newUser));
-        if (newUser.role === "admin") router.push("/admin"); // Changed from '/'
+        if (newUser.role === "admin") router.push("/admin");
         else if (newUser.role === "donor") router.push("/donor");
         else if (newUser.role === "hospital") router.push("/hospital");
         else router.push("/");
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const updated = { ...user, ...data };
         setUser(updated);
         localStorage.setItem("lifeline_user", JSON.stringify(updated));
-    }
+    };
 
     return (
         <AuthContext.Provider value={{ user, role: user?.role || null, login, logout, updateUser }}>

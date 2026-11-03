@@ -13,6 +13,11 @@ dist/
 # Node
 backend/node_modules/
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
 # Environment variables — NEVER commit real secrets
 .env
 .env.local

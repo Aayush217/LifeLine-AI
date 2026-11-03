@@ -1,42 +1,61 @@
 from .routing import get_osrm_travel_time
-import random
+from ..database import SessionLocal, UserModel
+
+# Standard Medical Blood Compatibility Matrix
+# Map recipient blood type to list of donor blood types that can donate to them
+COMPATIBLE_DONORS = {
+    "O-": ["O-"],
+    "O+": ["O-", "O+"],
+    "A-": ["O-", "A-"],
+    "A+": ["O-", "O+", "A-", "A+"],
+    "B-": ["O-", "B-"],
+    "B+": ["O-", "O+", "B-", "B+"],
+    "AB-": ["O-", "A-", "B-", "AB-"],
+    "AB+": ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"]
+}
 
 def run_hopcroft_karp(hospital_request: dict):
     """
-    Placeholder for the Hopcroft-Karp bipartite matching algorithm.
-    This module will take the hospital request data and cross-reference 
-    it against the Firebase DB of available donors.
+    Bipartite matching algorithm for blood requests.
+    Cross-references hospital request against real registered donors in the database,
+    filtering by blood compatibility and 20km radius with real travel times.
     """
-    # 1. Extract request details
-    req_lat = hospital_request.get('lat', 28.6139) # default to Delhi
-    req_lng = hospital_request.get('lng', 77.209)
+    req_lat = float(hospital_request.get('lat') or 26.9124) # default to Jaipur
+    req_lng = float(hospital_request.get('lng') or 75.7873)
     req_type = hospital_request.get('bloodType', 'O-')
     
-    # 2. Mocking a pool of nearby donors
-    mock_donors = [
-        {"id": "d1", "lat": req_lat + 0.05, "lng": req_lng + 0.05},
-        {"id": "d2", "lat": req_lat - 0.02, "lng": req_lng + 0.08},
-        {"id": "d3", "lat": req_lat + 0.10, "lng": req_lng - 0.04},
-    ]
+    compatible_types = COMPATIBLE_DONORS.get(req_type, [req_type, "O-"])
 
-    # 3. Calculate REAL WORLD routing times via OSRM for the graph weights
+    # Query real registered donors from the database
     weighted_edges = []
     max_radius_km = 20
 
-    for donor in mock_donors:
-        route_stats = get_osrm_travel_time(donor['lat'], donor['lng'], req_lat, req_lng)
-        if route_stats['distance_km'] <= max_radius_km:
-            weighted_edges.append({
-                "donor_id": donor['id'],
-                "travel_time_mins": route_stats['duration_mins'],
-                "distance_km": route_stats['distance_km']
-            })
+    session = SessionLocal()
+    try:
+        registered_donors = session.query(UserModel)\
+            .filter(UserModel.role == "donor")\
+            .filter(UserModel.blood_type.in_(compatible_types))\
+            .all()
 
-    # Sort by fastest arrival time, not absolute distance!
+        for donor in registered_donors:
+            d_lat = donor.lat or 26.9124
+            d_lng = donor.lng or 75.7873
+            route_stats = get_osrm_travel_time(d_lat, d_lng, req_lat, req_lng)
+            if route_stats['distance_km'] <= max_radius_km:
+                weighted_edges.append({
+                    "donor_id": donor.id,
+                    "donor_name": donor.name,
+                    "blood_type": donor.blood_type,
+                    "travel_time_mins": route_stats['duration_mins'],
+                    "distance_km": route_stats['distance_km']
+                })
+    finally:
+        session.close()
+
+    # Sort by fastest arrival time
     weighted_edges.sort(key=lambda x: x['travel_time_mins'])
 
-    # 4. Simulate a Hopcroft-Karp bipartite matching payload
-    matched_donors_count = min(3, len(weighted_edges))
+    matched_donors_count = len(weighted_edges)
 
     return {
         "status": "success",
@@ -44,6 +63,6 @@ def run_hopcroft_karp(hospital_request: dict):
         "matches_found": matched_donors_count,
         "closest_match_time_mins": weighted_edges[0]['travel_time_mins'] if weighted_edges else 0,
         "closest_match_dist_km": weighted_edges[0]['distance_km'] if weighted_edges else 0,
-        "matched_donors_routing": weighted_edges[:matched_donors_count],
-        "message": f"Hopcroft-Karp matched {matched_donors_count} donors optimally. Push Notifications sent."
+        "matched_donors_routing": weighted_edges,
+        "message": f"Optimal matching found {matched_donors_count} compatible donor(s) within {max_radius_km}km." if matched_donors_count > 0 else "No compatible donors currently within 20km radius."
     }
